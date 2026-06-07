@@ -4,7 +4,7 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
-
+app.get("/", (req, res) => res.json({ status: "ok" }));
 app.post("/api/generate", async (req, res) => {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   console.log("API Key found:", apiKey ? "YES" : "NO");
