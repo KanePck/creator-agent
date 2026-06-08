@@ -132,7 +132,8 @@ export default function App() {
     setImgAnalysis("");
     try {
       //const res = await fetch("http://localhost:3000/api/generate", {
-      const res = await fetch("/api/generate", {
+      //const res = await fetch("/api/generate", {
+      fetch("https://creator-agent-api.onrender.com/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -245,7 +246,8 @@ Respond ONLY with valid JSON, no markdown, no preamble:
     try {
       setStage(2);
       //const res = await fetch("http://localhost:3000/api/generate", {
-      const res = await fetch("/api/generate", {
+      //const res = await fetch("/api/generate", {
+      fetch("https://creator-agent-api.onrender.com/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages }),
