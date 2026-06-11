@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import { supabase } from "./supabase";
+import Auth from "./Auth";
 
 function AnimPreview({ caption, style, animKey }) {
   const words = caption.replace(/[#\n]/g, " ").split(" ").filter(Boolean).slice(0, 14);
@@ -86,6 +88,9 @@ const FIELDS = [
 const STAGES = ["อธิบาย", "กลยุทธ์", "คอนเทนต์", "เผยแพร่"];
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [lang, setLang] = useState("th");
   const [desc, setDesc] = useState("");
   const [field, setField] = useState("");
@@ -109,6 +114,48 @@ export default function App() {
   const [imgAnalysis, setImgAnalysis] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
 
+  useEffect(() => {
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    setUser(session?.user ?? null);
+    if (session?.user) fetchProfile(session.user.id);
+    setAuthLoading(false);
+  });
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    setUser(session?.user ?? null);
+    if (session?.user) fetchProfile(session.user.id);
+  });
+  return () => subscription.unsubscribe();
+}, []);
+
+const fetchProfile = async (userId) => {
+  const { data } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+  if (data) setProfile(data);
+};
+
+const logout = async () => {
+  await supabase.auth.signOut();
+  setUser(null);
+  setProfile(null);
+};
+
+const FREE_LIMIT = 10;
+const isProUser = profile?.plan === "pro";
+const generationsUsed = profile?.generations_used || 0;
+const canGenerate = isProUser || generationsUsed < FREE_LIMIT;
+
+const incrementGenerations = async () => {
+  if (!user || isProUser) return;
+  const newCount = generationsUsed + 1;
+  await supabase
+    .from("profiles")
+    .update({ generations_used: newCount })
+    .eq("id", user.id);
+  setProfile((prev) => ({ ...prev, generations_used: newCount }));
+};
   const togglePlatform = (id) =>
     setPlatforms((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -165,6 +212,10 @@ export default function App() {
 
   const generate = async () => {
     if (!desc.trim()) return;
+    if (!canGenerate) {
+       setError(lang === "th" ? "คุณใช้ครบ 10 generations แล้ว อัปเกรดเป็น Pro เพื่อใช้งานต่อ" : "You have used all 10 free generations. Upgrade to Pro to continue.");
+       return;
+    }
     if (platforms.length === 0) return;
     setLoading(true);
     setError("");
@@ -257,6 +308,7 @@ Respond ONLY with valid JSON, no markdown, no preamble:
       const clean = txt.replace(/```json|```/g, "").trim();
       const parsed = JSON.parse(clean);
       setResult(parsed);
+      await incrementGenerations();
       setStage(3);
       setActiveTab("strategy");
       setActiveVariant({});
@@ -358,8 +410,16 @@ Respond ONLY with valid JSON, no markdown, no preamble:
   };
   const t = T[lang];
 
-  return (
-    <div className="app">
+  if (authLoading) return (
+  <div style={{ minHeight: "100vh", background: "#FAF8F3", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <p style={{ fontFamily: "'DM Sans','Sarabun',sans-serif", color: "#7A7668" }}>กำลังโหลด...</p>
+  </div>
+);
+
+if (!user) return <Auth onLogin={(u) => { setUser(u); fetchProfile(u.id); }} />;
+
+return (
+  <div className="app">
       {/* Header */}
       <header className="hdr">
         <h1>{t.title}</h1>
@@ -369,7 +429,18 @@ Respond ONLY with valid JSON, no markdown, no preamble:
           <button className={`lbtn${lang === "th" ? " on" : ""}`} onClick={() => setLang("th")}>🇹🇭 ภาษาไทย</button>
         </div>
       </header>
-
+      {/* User bar */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16, padding: "8px 14px", background: "#fff", borderRadius: 10, border: "0.5px solid rgba(26,24,20,0.12)" }}>
+        <div style={{ fontSize: 12, color: "#7A7668" }}>
+          👤 {user?.email}
+          <span style={{ marginLeft: 10, fontSize: 11, fontWeight: 500, padding: "2px 8px", borderRadius: 100, background: isProUser ? "#F0D9A8" : "#F5F3EE", color: isProUser ? "#7A5A1E" : "#7A7668" }}>
+            {isProUser ? "Pro ⭐" : `${generationsUsed}/${FREE_LIMIT} ใช้แล้ว`}
+          </span>
+        </div>
+        <button onClick={logout} style={{ fontSize: 11, color: "#7A7668", background: "none", border: "0.5px solid rgba(26,24,20,0.12)", borderRadius: 6, padding: "3px 10px", cursor: "pointer", fontFamily: "inherit" }}>
+          ออกจากระบบ
+        </button>
+      </div>
       {/* Stage pills */}
       <div className="stages">
         {STAGES.map((s, i) => (
