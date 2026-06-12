@@ -142,7 +142,7 @@ const logout = async () => {
   setProfile(null);
 };
 
-const FREE_LIMIT = 10;
+const FREE_LIMIT = 5;
 const isProUser = profile?.plan === "pro";
 const generationsUsed = profile?.generations_used || 0;
 const canGenerate = isProUser || generationsUsed < FREE_LIMIT;
@@ -213,7 +213,7 @@ const incrementGenerations = async () => {
   const generate = async () => {
     if (!desc.trim()) return;
     if (!canGenerate) {
-       setError(lang === "th" ? "คุณใช้ครบ 10 generations แล้ว อัปเกรดเป็น Pro เพื่อใช้งานต่อ" : "You have used all 10 free generations. Upgrade to Pro to continue.");
+       setError(lang === "th" ? "คุณใช้ครบ 5 generations แล้ว อัปเกรดเป็น Pro เพื่อใช้งานต่อ" : "You have used all 10 free generations. Upgrade to Pro to continue.");
        return;
     }
     if (platforms.length === 0) return;
