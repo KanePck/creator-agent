@@ -474,7 +474,7 @@ return (
         {/* Image upload */}
         <div className="clabel">{t.imgLabel}</div>
         <label className={`img-zone${imgB64 ? " has-img" : ""}`}>
-          <input type="file" accept="image/*" onChange={handleImg} style={{ display: "none" }}
+          <input type="file" accept="image/*" onChange={handleImage} style={{ display: "none" }}
             key={imgB64 ? "has-image" : "no-image"} />
           {imgB64
             ? <img src={`data:${imgType};base64,${imgB64}`} alt="preview" className="img-preview" />
