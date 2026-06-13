@@ -54,7 +54,7 @@ function AnimPreview({ caption, style, animKey }) {
 
       {style === "typewriter" && (
         <div className="anim-typewriter">
-          {displayed}
+ m          {displayed}
           <span className="anim-cursor" />
         </div>
       )}
@@ -209,7 +209,25 @@ const incrementGenerations = async () => {
     }
     setAnalyzing(false);
   };
-
+  const reset = () => {
+    setDesc("");
+    setField("");
+    setPrice("");
+    setVoice("");
+    setPlatforms(["Instagram"]);
+    setGoal("awareness");
+    setNumVariants(1);
+    setResult(null);
+    setError("");
+    setStage(0);
+    setActiveTab("strategy");
+    setImgB64(null);
+    setImgType(null);
+    setImgAnalysis("");
+    setAnimPlatform(null);
+    setActiveVariant({});
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const generate = async () => {
     if (!desc.trim()) return;
     if (!canGenerate) {
@@ -456,7 +474,8 @@ return (
         {/* Image upload */}
         <div className="clabel">{t.imgLabel}</div>
         <label className={`img-zone${imgB64 ? " has-img" : ""}`}>
-          <input type="file" accept="image/*" onChange={handleImage} style={{ display: "none" }} />
+          <input type="file" accept="image/*" onChange={handleImg} style={{ display: "none" }}
+            key={imgB64 ? "has-image" : "no-image"} />
           {imgB64
             ? <img src={`data:${imgType};base64,${imgB64}`} alt="preview" className="img-preview" />
             : <p className="img-hint">{t.imgHint}</p>}
@@ -527,9 +546,30 @@ return (
 
         {error && <p className="error">{error}</p>}
 
-        <button className="gen-btn" onClick={generate} disabled={loading || !desc.trim() || platforms.length === 0}>
-          {loading ? t.loadingBtn : result ? t.regenBtn : t.genBtn}
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="gen-btn" onClick={generate} disabled={loading || !desc.trim() || platforms.length === 0}
+            style={{ flex: 1 }}>
+            {loading ? t.loadingBtn : result ? t.regenBtn : t.genBtn}
+          </button>
+          {(result || desc) && (
+            <button onClick={reset}
+              style={{
+                padding: "13px 18px",
+                borderRadius: 8,
+                background: "none",
+                border: "0.5px solid rgba(26,24,20,0.12)",
+                fontSize: 13,
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+                color: "#7A7668",
+                whiteSpace: "nowrap",
+                transition: "all 0.15s",
+              }}>
+              🔄 {lang === "th" ? "เริ่มใหม่" : "Reset"}
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Results */}
