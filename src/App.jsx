@@ -544,7 +544,62 @@ return (
           </div>
         </div>
 
-        {error && <p className="error">{error}</p>}
+        {error && (
+          <div>
+            <p className="error">{error}</p>
+            {!canGenerate && (
+              <div style={{
+                background: "#FBF5E6",
+                border: "0.5px solid #E8D5A0",
+                borderRadius: 10,
+                padding: "14px 16px",
+                marginTop: 8,
+                textAlign: "center",
+              }}>
+                <p style={{ fontSize: 13, fontWeight: 500, color: "#6B4A10", marginBottom: 4 }}>
+                  ⭐ {lang === "th" ? "อัปเกรดเป็น Pro" : "Upgrade to Pro"}
+                </p>
+                <p style={{ fontSize: 12, color: "#7A5A1E", marginBottom: 12, lineHeight: 1.6 }}>
+                  {lang === "th"
+                    ? "Pro: generations ไม่จำกัด + ฟีเจอร์ครบทุกอย่าง เพียง ฿199/เดือน"
+                    : "Pro: unlimited generations + all features for just ฿199/month"}
+                </p>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => window.open("mailto:khunpck@gmail.com?subject=Upgrade to Pro&body=I want to upgrade to Pro plan", "_blank")}
+                    style={{
+                      padding: "9px 20px",
+                      borderRadius: 8,
+                      background: "#1A1814",
+                      color: "#fff",
+                      border: "none",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}>
+                    {lang === "th" ? "✦ อัปเกรด ฿199/เดือน" : "✦ Upgrade ฿199/month"}
+                  </button>
+                  <button
+                    onClick={() => window.open("https://line.me/ti/p/Pichai K", "_blank")}
+                    style={{
+                      padding: "9px 20px",
+                      borderRadius: 8,
+                      background: "#06C755",
+                      color: "#fff",
+                      border: "none",
+                      fontSize: 13,
+                      fontWeight: 500,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                    }}>
+                    💚 {lang === "th" ? "ติดต่อผ่าน LINE" : "Contact via LINE"}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         <div style={{ display: "flex", gap: 8 }}>
           <button className="gen-btn" onClick={generate} disabled={loading || !desc.trim() || platforms.length === 0}
