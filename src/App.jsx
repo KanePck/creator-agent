@@ -596,6 +596,19 @@ return (
                     💚 {lang === "th" ? "ติดต่อผ่าน LINE" : "Contact via LINE"}
                   </button>
                 </div>
+                <div style={{ marginTop: 14, textAlign: "center" }}>
+                  <p style={{ fontSize: 11, color: "#7A5A1E", marginBottom: 8 }}>
+                  {lang === "th" ? "หรือสแกน PromptPay เพื่อชำระเงิน:" : "Or scan to pay via PromptPay:"}
+                  </p>
+                  <img
+                    src="/promptpay.png"
+                    alt="PromptPay QR Code"
+                    style={{ width: 140, height: 140, borderRadius: 8, border: "0.5px solid #E8D5A0" }}
+                  />
+                  <p style={{ fontSize: 11, color: "#7A5A1E", marginTop: 6 }}>
+                    ฿199 / เดือน
+                  </p>
+                </div>
               </div>
             )}
           </div>
