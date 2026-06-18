@@ -603,7 +603,7 @@ return (
                   <img
                     src="/promptpay.png"
                     alt="PromptPay QR Code"
-                    style={{ width: 1000, height: 2000, borderRadius: 8, border: "0.5px solid #E8D5A0" }}
+                    style={{ width: 250, height: 500, borderRadius: 8, border: "0.5px solid #E8D5A0" }}
                   />
                   <p style={{ fontSize: 11, color: "#7A5A1E", marginTop: 6 }}>
                     ฿199 / เดือน
