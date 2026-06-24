@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import { supabase } from "./supabase";
 import Auth from "./Auth";
+import html2canvas from "html2canvas";
 
 function AnimPreview({ caption, style, animKey }) {
   const words = caption.replace(/[#\n]/g, " ").split(" ").filter(Boolean).slice(0, 14);
@@ -87,6 +88,133 @@ const FIELDS = [
 
 const STAGES = ["อธิบาย", "กลยุทธ์", "คอนเทนต์", "เผยแพร่"];
 
+function ImageCard({ platform, caption, hashtags, lang }) {
+  const [downloading, setDownloading] = useState(false);
+  const cardRef = useRef(null);
+
+  const download = async () => {
+    if (!cardRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+        logging: false,
+      });
+      const link = document.createElement("a");
+      link.download = `creator-card-${platform.toLowerCase()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (e) {
+      console.error("Download failed:", e);
+    }
+    setDownloading(false);
+  };
+
+  const shortCaption = caption
+    ? caption.replace(/#\w+/g, "").trim().split(" ").slice(0, 30).join(" ") + "..."
+    : "";
+
+  const tags = hashtags
+    ? hashtags.slice(0, 5).map(h => "#" + h.replace(/^#/, "")).join(" ")
+    : "";
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div
+        ref={cardRef}
+        style={{
+          width: "100%",
+          maxWidth: 360,
+          aspectRatio: "1/1",
+          background: "#1A1814",
+          borderRadius: 12,
+          padding: "32px 28px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          margin: "0 auto",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, right: 0,
+          height: 3,
+          background: "linear-gradient(to right, #C8963E, #F0D9A8)",
+        }} />
+
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}>
+          <span style={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: "0.1em",
+            textTransform: "uppercase",
+            color: "#C8963E",
+          }}>{platform}</span>
+          <span style={{
+            fontSize: 11,
+            color: "rgba(255,255,255,0.3)",
+            fontFamily: "'DM Serif Display', serif",
+            fontStyle: "italic",
+          }}>Creator Broadcast</span>
+        </div>
+
+        <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "20px 0" }}>
+          <p style={{
+            fontSize: 18,
+            fontWeight: 500,
+            color: "#fff",
+            lineHeight: 1.7,
+            fontFamily: "'DM Sans', 'Sarabun', sans-serif",
+            margin: 0,
+          }}>
+            {shortCaption}
+          </p>
+        </div>
+
+        <div>
+          <p style={{
+            fontSize: 12,
+            color: "#C8963E",
+            lineHeight: 1.6,
+            fontWeight: 500,
+            margin: 0,
+          }}>{tags}</p>
+        </div>
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: 10 }}>
+        <button
+          onClick={download}
+          disabled={downloading}
+          style={{
+            padding: "9px 20px",
+            borderRadius: 8,
+            background: "#1A1814",
+            color: "#fff",
+            border: "none",
+            fontSize: 13,
+            fontWeight: 500,
+            cursor: downloading ? "not-allowed" : "pointer",
+            fontFamily: "inherit",
+            opacity: downloading ? 0.6 : 1,
+            transition: "all 0.15s",
+          }}>
+          {downloading
+            ? (lang === "th" ? "กำลังบันทึก..." : "Saving...")
+            : (lang === "th" ? "⬇ ดาวน์โหลด PNG" : "⬇ Download PNG")}
+        </button>
+      </div>
+    </div>
+  );
+}
 export default function App() {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -370,7 +498,7 @@ Respond ONLY with valid JSON, no markdown, no preamble:
       genBtn: "✦ สร้างกลยุทธ์คอนเทนต์",
       regenBtn: "↻ สร้างใหม่",
       loadingBtn: "กำลังสร้าง...",
-      tabs: ["กลยุทธ์", "คอนเทนต์", "ตารางโพสต์", "Funnel", "🎬 Storyboard"],
+      tabs: ["กลยุทธ์", "คอนเทนต์", "ตารางโพสต์", "Funnel", "🎬 Storyboard", "🖼 Image Card"],
       stratLabel: "กลยุทธ์",
       insightLabel: "Insight:",
       bestTimeLabel: "⏰ เวลาที่เหมาะสม:",
@@ -409,7 +537,7 @@ Respond ONLY with valid JSON, no markdown, no preamble:
       genBtn: "✦ Generate Content Strategy",
       regenBtn: "↻ Regenerate",
       loadingBtn: "Generating...",
-      tabs: ["Strategy", "Content", "Schedule", "Funnel", "🎬 Storyboard"],
+      tabs: ["Strategy", "Content", "Schedule", "Funnel", "🎬 Storyboard", "🖼 Image Card"],
       stratLabel: "Strategy",
       insightLabel: "Insight:",
       bestTimeLabel: "🕐 Best time:",
@@ -646,7 +774,7 @@ return (
           {/* Tabs */}
           <div className="tabs">
             {t.tabs.map((tab, i) => {
-              const ids = ["strategy", "content", "schedule", "funnel", "storyboard"];
+              const ids = ["strategy", "content", "schedule", "funnel", "storyboard", "imagecard"];
               return (
                 <button key={tab} className={`tab${activeTab === ids[i] ? " on" : ""}`}
                   onClick={() => setActiveTab(ids[i])}>{tab}</button>
@@ -840,6 +968,42 @@ return (
               ))}
               <div style={{ padding: "12px 16px", background: "var(--surface2)", borderRadius: 10, fontSize: 12, color: "var(--muted)", lineHeight: 1.7 }}>
                 💡 {lang === "th" ? "นี่คือแผนการถ่ายทำ — ผู้สร้างถ่ายทำทุกเฟรมด้วยตัวเอง AI ช่วยวางแผนลำดับเรื่องราว" : "This is your shooting plan — you film every frame yourself. The AI planned the sequence; you bring it to life."}
+              </div>
+            </div>
+          )}
+          {/* Image Card tab */}
+          {activeTab === "imagecard" && result && (
+            <div>
+              <div className="card">
+                <div className="clabel">
+                  {lang === "th" ? "การ์ดรูปภาพสำหรับโพสต์" : "Downloadable image card"}
+                </div>
+                <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 14, lineHeight: 1.6 }}>
+                  {lang === "th"
+                    ? "การ์ดสวยงามพร้อมโพสต์ — ดาวน์โหลดเป็น PNG แล้วนำไปใช้ได้เลย"
+                    : "A ready-to-post image card — download as PNG and post directly."}
+                </p>
+                {/* Platform selector */}
+                <div className="chips" style={{ marginBottom: 14 }}>
+                  {result.platforms
+                    .filter(p => platforms.some(s =>
+                      p.platform.toLowerCase().includes(s.toLowerCase()) ||
+                      s.toLowerCase().includes(p.platform.toLowerCase())
+                    ))
+                    .map(p => {
+                      const variant = p.variants?.[getVariantIdx(p.platform)];
+                      return (
+                        <div key={p.platform}>
+                          <ImageCard
+                            platform={p.platform}
+                            caption={variant?.caption || ""}
+                            hashtags={result.hashtags}
+                            lang={lang}
+                          />
+                        </div>
+                      );
+                    })}
+                </div>
               </div>
             </div>
           )}
