@@ -5,7 +5,7 @@ import Auth from "./Auth";
 import html2canvas from "html2canvas";
 
 function AnimPreview({ caption, style, animKey }) {
-  const words = caption.replace(/[#\n]/g, " ").split(" ").filter(Boolean).slice(0, 14);
+  const words = caption.replace(/[#\n]/g, " ").split(" ").filter(Boolean);
   const lines = [];
   for (let i = 0; i < words.length; i += 4) {
     lines.push(words.slice(i, i + 4).join(" "));
@@ -35,7 +35,7 @@ function AnimPreview({ caption, style, animKey }) {
         <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4, maxWidth: 280 }}>
           {words.map((word, i) => (
             <span key={`${animKey}-${i}`} className="anim-word"
-              style={{ animationDelay: `${i * 0.08}s` }}>
+              style={{ animationDelay: `${i * 0.08}s`, fontSize: fontSize, fontWeight: 700, color: "#fff", fontFamily: "'DM Sans','Sarabun',sans-serif" }}>
               {word}
             </span>
           ))}
@@ -45,16 +45,19 @@ function AnimPreview({ caption, style, animKey }) {
       {style === "fade-in" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
           {lines.map((line, i) => (
-            <div key={`${animKey}-${i}`} className={`anim-line${i === 0 ? " highlight" : ""}`}
-              style={{ animationDelay: `${i * 0.9}s` }}>
-              {line}
-            </div>
-          ))}
+                <div key={`${animKey}-${i}`} className={`anim-line${i === 0 ? " highlight" : ""}`}
+                  style={{
+                    animationDelay: `${i * 0.9}s`,
+                    fontSize: i === 0 ? fontSize + 4 + "px" : fontSize + "px"
+                  }}>
+                  {line}
+                </div>
+              ))}
         </div>
       )}
 
       {style === "typewriter" && (
-        <div className="anim-typewriter">
+        <div className="anim-typewriter" style={{ fontSize: fontSize }}>
  m          {displayed}
           <span className="anim-cursor" />
         </div>
@@ -89,6 +92,7 @@ const FIELDS = [
 const STAGES = ["อธิบาย", "กลยุทธ์", "คอนเทนต์", "เผยแพร่"];
 
 function ImageCard({ platform, caption, hashtags, lang }) {
+  const [fontSize, setFontSize] = useState(15);
   const [downloading, setDownloading] = useState(false);
   const cardRef = useRef(null);
 
@@ -112,8 +116,8 @@ function ImageCard({ platform, caption, hashtags, lang }) {
     setDownloading(false);
   };
 
-  const shortCaption = caption
-    ? caption.replace(/#\w+/g, "").trim().split(" ").slice(0, 30).join(" ") + "..."
+  const cleanCaption = caption
+    ? caption.replace(/#\w+/g, "").trim()
     : "";
 
   const tags = hashtags
@@ -122,12 +126,21 @@ function ImageCard({ platform, caption, hashtags, lang }) {
 
   return (
     <div style={{ marginTop: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+        <span style={{ fontSize: 11, color: "var(--muted)", minWidth: 60 }}>
+          {lang === "th" ? "ขนาดตัวอักษร:" : "Font size:"}
+        </span>
+        <input type="range" min="10" max="22" value={fontSize} step="1"
+          onChange={(e) => setFontSize(parseInt(e.target.value))}
+          style={{ flex: 1 }} />
+        <span style={{ fontSize: 11, color: "var(--muted)", minWidth: 24 }}>{fontSize}px</span>
+      </div>
       <div
         ref={cardRef}
         style={{
           width: "100%",
           maxWidth: 360,
-          aspectRatio: "1/1",
+          minHeight: 360,
           background: "#1A1814",
           borderRadius: 12,
           padding: "32px 28px",
@@ -166,7 +179,7 @@ function ImageCard({ platform, caption, hashtags, lang }) {
           }}>Creator Broadcast</span>
         </div>
 
-        <div style={{ flex: 1, display: "flex", alignItems: "center", padding: "20px 0" }}>
+        <div style={{ flex: 1, display: "flex", alignItems: "flex-start", justifyContent: "center", padding: "16px 0", overflowY: "auto" }}>
           <p style={{
             fontSize: 18,
             fontWeight: 500,
@@ -175,7 +188,7 @@ function ImageCard({ platform, caption, hashtags, lang }) {
             fontFamily: "'DM Sans', 'Sarabun', sans-serif",
             margin: 0,
           }}>
-            {shortCaption}
+            {cleanCaption}
           </p>
         </div>
 
