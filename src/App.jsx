@@ -980,8 +980,28 @@ return (
                 </div>
                 <p style={{ fontSize: 12, color: "var(--muted)", marginBottom: 14, lineHeight: 1.6 }}>
                   {lang === "th"
-                    ? "การ์ดสวยงามพร้อมโพสต์ — ดาวน์โหลดเป็น PNG แล้วนำไปใช้ได้เลย"
-                    : "A ready-to-post image card — download as PNG and post directly."}
+                    ? "เลือกสไตล์ animation → กด Replay → screen record วิดีโอบนโทรศัพท์ → โพสต์เป็น Reel/TikTok ได้เลย หรือดาวน์โหลด PNG สำหรับโพสต์รูปภาพ"
+                    : "Choose an animation style → tap Replay → screen record on your phone → post directly as a Reel or TikTok. Or download PNG for a photo post."}
+                  <div style={{
+                    background: "#FBF5E6",
+                    border: "0.5px solid #E8D5A0",
+                    borderRadius: 8,
+                    padding: "10px 14px",
+                    marginBottom: 14,
+                    fontSize: 12,
+                    color: "#7A5A1E",
+                    lineHeight: 1.7,
+                  }}>
+                    📱 <strong>{lang === "th" ? "วิธีทำวิดีโอ:" : "How to make a video:"}</strong>
+                    <br />
+                    {lang === "th"
+                      ? "iPhone: กด Side button + Volume Up พร้อมกัน → เริ่ม Screen Record → กลับมากด Replay ในแอป → หยุด Record → วิดีโอบันทึกใน Photos"
+                      : "iPhone: Side button + Volume Up → Screen Record → come back and tap Replay → stop recording → video saved to Photos"}
+                    <br />
+                  {lang === "th"
+                    ? "Android: ปัดลงจากด้านบน → กด Screen Record → กลับมากด Replay → หยุด Record"
+                    : "Android: swipe down → Screen Record → tap Replay → stop recording"}
+                  </div>
                 </p>
                 {/* Platform selector */}
                 <div className="chips" style={{ marginBottom: 14 }}>
